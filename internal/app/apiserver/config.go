@@ -1,12 +1,16 @@
 package apiserver
 
+import (
+	"github.com/nailus/workout/internal/database"
+)
+
 type Config struct {
 	BindAddr    string `toml:"bind_addr"`
+	Database *database.Config
 }
 
 func NewConfig() *Config {
 	return &Config{
-		BindAddr: ":2000",
-		//LogLevel: "debug",
+		Database: database.NewConfig(),
 	}
 }
