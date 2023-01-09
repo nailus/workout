@@ -33,7 +33,6 @@ func (s  *ApiServer) Start() error {
 	if err := s.configureDatabase(); err != nil {
 		return err
 	}
-	fmt.Println("123")
 
 	return http.ListenAndServe(s.config.BindAddr, s.router)
 }
