@@ -1,4 +1,0 @@
-bind_addr = ":2000"
-
-[database]
-database_url = "host=db dbname=workout sslmode=disable user=postgres"

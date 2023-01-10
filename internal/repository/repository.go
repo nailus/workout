@@ -4,19 +4,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type Workout interface {
+	Create() (int, error)
+	Update(workoutId int) error
+	Delete(workoutId int) error
+}
+
 type Repository struct {
-	Db *sqlx.DB
+	Workout
 }
 
-type UserList struct {
-	Id          int    `json:"id" db:"id"`
-}
-
-func (r *Repository) GetUserAll() ([]UserList, error)  {
-	var list []UserList
-	query := "SELECT id FROM users"
-	if err := r.Db.Select(&list, query); err != nil {
-		return nil, err
-	}
-	return list, nil
+func New(db *sqlx.DB) *Repository {
+	return &Repository {Workout: repository.NewWorkout(db)}
 }
