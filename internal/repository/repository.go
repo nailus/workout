@@ -1,19 +1,19 @@
 package repository
 
-import (
-	"github.com/jmoiron/sqlx"
-)
+// import (
+// 	"github.com/jmoiron/sqlx"
+// )
 
-type Workout interface {
-	Create() (int, error)
-	Update(workoutId int) error
-	Delete(workoutId int) error
-}
+// type Exercise interface {
+// 	Create() (int, error)
+// 	Update(exerciseId int) error
+// 	Delete(exerciseId int) error
+// }
 
-type Repository struct {
-	Workout
-}
+// type Repository struct {
+// 	ExerciseRepository
+// }
 
-func New(db *sqlx.DB) *Repository {
-	return &Repository {Workout: repository.NewWorkout(db)}
-}
+// func New(db *sqlx.DB) *Repository {
+// 	return &Repository {ExerciseRepository: NewExerciseRepository(db)}
+// }
