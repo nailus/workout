@@ -35,8 +35,8 @@ func (h *Handler) createExercise(c *gin.Context) {
 }
 
 func (h *Handler) getAllExercises(c *gin.Context) {
-  fmt.Println(h, h.service)
   exercises, _ := h.service.GetAllExercises()
+  
   c.JSON(http.StatusOK, exercises)
 }
 
