@@ -10,11 +10,11 @@ type Repository struct {
 }
 
 func New(db *sqlx.DB) *Repository {
-	return &Repository {db: db}
+	return &Repository{db: db}
 }
 
 func (r *Repository) GetAllExercises() ([]entity.Exercise, error) {
 	exerciseList := []entity.Exercise{}
-  err := r.db.Select(&exerciseList, "SELECT * FROM exercises")
+	err := r.db.Select(&exerciseList, "SELECT * FROM exercises")
 	return exerciseList, err
 }

@@ -1,12 +1,14 @@
 package main
+
 import (
-	_ "github.com/lib/pq"
 	"log"
-	"github.com/nailus/workout/pkg/httpserver"
-	"github.com/nailus/workout/internal/handler"
-	"github.com/nailus/workout/internal/service"
+
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/nailus/workout/internal/handler"
 	"github.com/nailus/workout/internal/repository"
+	"github.com/nailus/workout/internal/service"
+	"github.com/nailus/workout/pkg/httpserver"
 )
 
 func main() {
