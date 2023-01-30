@@ -9,17 +9,10 @@ import (
 	"github.com/nailus/workout/internal/entity"
 
 	"log"
-
-	//"log"
 )
 
 type Handler struct {
 	service *service.Service
-}
-
-type UserAuthCred struct {
-	email string `db:"email"`
-	password string `db:"password"`
 }
 
 func New(s *service.Service) *Handler {
@@ -88,9 +81,10 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 	
-	fundedUser, err := h.service.GetUser(&user)
+	token, err := h.service.GenerateAuthToken(&user)
 	if err != nil {
 		log.Fatal(err)
 	}
-	c.JSON(http.StatusOK, fundedUser)
+
+	c.JSON(http.StatusBadRequest, gin.H{"token": token})
 }

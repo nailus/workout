@@ -37,11 +37,13 @@ func (r *Repository) CreateUser(user *entity.User) (int, error) {
 	return id, nil
 }
 
-func (r *Repository) GetUser(user *entity.User) (*entity.User, error) {
-	query := fmt.Sprintf("SELECT FROM %s WHERE email = $1 AND encrypted_password = $2", "users")
-	err := r.db.Get(&user, query, user.Email, user.Password)
+func (r *Repository) GetUser(email string) (*entity.User, error) {
+	var user entity.User
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email = $1", "users")
+	err := r.db.Get(&user, query, email)
+
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return &user, nil
 } 

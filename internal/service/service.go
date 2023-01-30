@@ -1,12 +1,16 @@
 package service
 
 import (
+	"log"
+
 	"github.com/nailus/workout/internal/entity"
 	"github.com/nailus/workout/internal/repository"
 	"golang.org/x/crypto/bcrypt"
-	"log"
-	//"github.com/golang-jwt/jwt/v4"
 
+	//"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // TODO: разделить на разные сервисы
@@ -14,10 +18,15 @@ type Service struct {
 	repository *repository.Repository
 }
 
-// type Claims struct {
-// 	UserId int
-// 	jwt.StandardClaims
-// }
+type jwtTokenClaims struct {
+	jwt.StandardClaims
+	UserId int
+}
+
+const (
+	signingKey = "vj4NgnfZG2PKhtGO"
+	tokenTTL   = 1 * time.Hour
+)
 
 func New(r *repository.Repository) *Service {
 	return &Service{repository: r}
@@ -42,13 +51,26 @@ func (s *Service) CreateUser(user *entity.User) (int, error) {
 	return s.repository.CreateUser(user)
 }
 
-func (s *Service) GetUser(user *entity.User) (*entity.User, error) {
-	encryptPassword(user)
-	return s.repository.GetUser(user)
-} 
+func (s *Service) GenerateAuthToken(user *entity.User) (string, error) {
+	foundUser, _ := s.repository.GetUser(user.Email)
 
-func encryptPassword(user *entity.User) {
-	entryptedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
-	user.Password = string(entryptedPassword)
+	if bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password)) != nil {
+		return "", nil
+	}
+
+	jwtTokenClaims := jwtTokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		foundUser.Id,
+	}
+
+	
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtTokenClaims)
+
+
+	return token.SignedString([]byte(signingKey))
 }
 
