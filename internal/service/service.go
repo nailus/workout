@@ -1,13 +1,12 @@
 package service
 
 import (
+	//"fmt"
 	"log"
 
 	"github.com/nailus/workout/internal/entity"
 	"github.com/nailus/workout/internal/repository"
 	"golang.org/x/crypto/bcrypt"
-
-	//"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -25,7 +24,7 @@ type jwtTokenClaims struct {
 
 const (
 	signingKey = "vj4NgnfZG2PKhtGO"
-	tokenTTL   = 1 * time.Hour
+	tokenTTL   = 100 * time.Hour
 )
 
 func New(r *repository.Repository) *Service {
@@ -65,12 +64,18 @@ func (s *Service) GenerateAuthToken(user *entity.User) (string, error) {
 		},
 		foundUser.Id,
 	}
-
-	
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtTokenClaims)
-
-
 	return token.SignedString([]byte(signingKey))
 }
 
+func (s *Service) ParseAuthToken(accessToken string) (int, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &jwtTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(signingKey), nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return token.Claims.UserId, nil
+} 

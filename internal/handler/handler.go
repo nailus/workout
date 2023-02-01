@@ -28,7 +28,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		auth.POST("/sign-up", h.signUp)
 	}
 
-	api := router.Group("/api")
+	api := router.Group("/api", h.authorizedUser)
 	{
 		exercises := api.Group("exercises")
 		exercises.POST("/", h.createExercise)
@@ -86,5 +86,5 @@ func (h *Handler) signIn(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	c.JSON(http.StatusBadRequest, gin.H{"token": token})
+	c.JSON(http.StatusAccepted, gin.H{"token": token})
 }
