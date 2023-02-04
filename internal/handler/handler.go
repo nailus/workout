@@ -7,8 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nailus/workout/internal/service"
 	"github.com/nailus/workout/internal/entity"
-
-	"log"
 )
 
 type Handler struct {
@@ -17,6 +15,14 @@ type Handler struct {
 
 func New(s *service.Service) *Handler {
 	return &Handler{service: s}
+}
+
+func ResponseError(c *gin.Context, status_code int, message string) {
+	c.AbortWithStatusJSON(status_code, gin.H{"message": message})
+}
+
+func ResponseForbiddenError(c *gin.Context) {
+	c.AbortWithStatus(http.StatusForbidden)
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
@@ -65,7 +71,7 @@ func (h *Handler) deleteExercise(c *gin.Context) {
 func (h *Handler) signUp(c *gin.Context) {
 	var user entity.User
 	if err := c.BindJSON(&user); err != nil {
-		//newErrorResponse(c, http.StatusBadRequest, "invalid input body")
+		ResponseError(c, http.StatusBadRequest, "input params are invalid")
 		return
 	}
 
@@ -73,17 +79,16 @@ func (h *Handler) signUp(c *gin.Context) {
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	// TODO: Разобраться с ошибками!!
 	var user entity.User
 	if err := c.BindJSON(&user); err != nil {
-		log.Fatal(err)
-		//c.JSON(http.StatusBadRequest, gin.H{"error": "TEST!!!"})
+		ResponseError(c, http.StatusBadRequest, "input params are invalid")
 		return
 	}
 	
 	token, err := h.service.GenerateAuthToken(&user)
 	if err != nil {
-		log.Fatal(err)
+		ResponseError(c, http.StatusBadRequest, "user didnt found")
+		return
 	}
 
 	c.JSON(http.StatusAccepted, gin.H{"token": token})

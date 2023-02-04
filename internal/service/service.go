@@ -2,14 +2,18 @@ package service
 
 import (
 	//"fmt"
-	"log"
+	//"fmt"
+	//"log"
+	"errors"
+
+	"time"
 
 	"github.com/nailus/workout/internal/entity"
 	"github.com/nailus/workout/internal/repository"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	//"reflect"
 )
 
 // TODO: разделить на разные сервисы
@@ -42,8 +46,7 @@ func (s *Service) GetAllExercises() ([]entity.Exercise, error) {
 func (s *Service) CreateUser(user *entity.User) (int, error) {
 	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	if err != nil {
-		log.Fatal(err)
-		//return 0, err
+		return 0, err
 	}
 	user.Password = string(password)
 	
@@ -77,5 +80,10 @@ func (s *Service) ParseAuthToken(accessToken string) (int, error) {
 		return 0, err
 	}
 
-	return token.Claims.UserId, nil
+	claims, ok := token.Claims.(jwtTokenClaims)
+	if !ok {
+		return 0, errors.New("claims are invalid")
+	}
+
+	return claims.UserId, nil
 } 
