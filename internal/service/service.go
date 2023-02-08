@@ -1,18 +1,15 @@
 package service
 
 import (
-	//"fmt"
-	//"fmt"
-	//"log"
 	"errors"
-
+	//"fmt"
+	//"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/nailus/workout/internal/entity"
 	"github.com/nailus/workout/internal/repository"
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/golang-jwt/jwt/v4"
 	//"reflect"
 )
 
@@ -54,10 +51,14 @@ func (s *Service) CreateUser(user *entity.User) (int, error) {
 }
 
 func (s *Service) GenerateAuthToken(user *entity.User) (string, error) {
-	foundUser, _ := s.repository.GetUser(user.Email)
+	foundUser, err := s.repository.GetUser(user.Email)
+
+	if err != nil {
+		return "", err
+	}
 
 	if bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password)) != nil {
-		return "", nil
+		return "", errors.New("bad password")
 	}
 
 	jwtTokenClaims := jwtTokenClaims{
@@ -80,10 +81,14 @@ func (s *Service) ParseAuthToken(accessToken string) (int, error) {
 		return 0, err
 	}
 
-	claims, ok := token.Claims.(jwtTokenClaims)
+	claims, ok := token.Claims.(*jwtTokenClaims)
 	if !ok {
 		return 0, errors.New("claims are invalid")
 	}
 
 	return claims.UserId, nil
 } 
+
+func (s *Service) CreateExercise(exercise *entity.Exercise, userId int) (int, error) {
+	return s.repository.CreateExercise(exercise, userId)
+}

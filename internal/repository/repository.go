@@ -20,10 +20,6 @@ func (r *Repository) GetAllExercises() ([]entity.Exercise, error) {
 	return exerciseList, err
 }
 
-// func (r *Repository) GetUser(email, password) (User, error) {
-// 	return nil, nil
-// }
-
 func (r *Repository) CreateUser(user *entity.User) (int, error) {
 	var id int
 
@@ -46,4 +42,17 @@ func (r *Repository) GetUser(email string) (*entity.User, error) {
 		return nil, err
 	}
 	return &user, nil
-} 
+}
+
+func (r *Repository) CreateExercise(exercise *entity.Exercise, userId int) (int, error) {
+	var id int
+
+	query := fmt.Sprintf("INSERT INTO %s (title, body, author_id) values ($1, $2, $3) RETURNING id", "exercises")
+
+	row := r.db.QueryRow(query, exercise.Title, exercise.Body, userId)
+	if err := row.Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}

@@ -47,7 +47,20 @@ func (h *Handler) InitRouters() *gin.Engine {
 }
 
 func (h *Handler) createExercise(c *gin.Context) {
-	fmt.Println("createExercise handler")
+	userIdContext, _ := c.Get("userId")
+	userId := userIdContext.(int)
+	
+	var exercise entity.Exercise
+	if err := c.BindJSON(&exercise); err != nil {
+		ResponseError(c, http.StatusBadRequest, "input params are invalid")
+		return
+	}
+	exerciseId, err := h.service.CreateExercise(&exercise, userId)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, "input params are invalid")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "exercise created", "id": exerciseId}) 
 }
 
 func (h *Handler) getAllExercises(c *gin.Context) {
@@ -74,8 +87,12 @@ func (h *Handler) signUp(c *gin.Context) {
 		ResponseError(c, http.StatusBadRequest, "input params are invalid")
 		return
 	}
-
-	h.service.CreateUser(&user)
+	_, err := h.service.CreateUser(&user)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, "input params are invalid")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User created"}) 
 }
 
 func (h *Handler) signIn(c *gin.Context) {
