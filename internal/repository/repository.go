@@ -16,8 +16,19 @@ func New(db *sqlx.DB) *Repository {
 
 func (r *Repository) GetAllExercises() ([]entity.Exercise, error) {
 	exerciseList := []entity.Exercise{}
-	err := r.db.Select(&exerciseList, "SELECT * FROM exercises")
+	err := r.db.Select(&exerciseList, "SELECT id, title FROM exercises")
 	return exerciseList, err
+}
+
+func (r *Repository) GetExercise(exerciseId int) (*entity.Exercise, error) {
+	var exercise entity.Exercise
+	query := fmt.Sprintf("SELECT id, title, body, author_id FROM %s WHERE id = $1", "exercises")
+	err := r.db.Get(&exercise, query, exerciseId)
+
+	if err != nil {
+		return nil, err
+	}
+	return &exercise, nil
 }
 
 func (r *Repository) CreateUser(user *entity.User) (int, error) {
@@ -29,7 +40,6 @@ func (r *Repository) CreateUser(user *entity.User) (int, error) {
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
-
 	return id, nil
 }
 
@@ -50,6 +60,21 @@ func (r *Repository) CreateExercise(exercise *entity.Exercise, userId int) (int,
 	query := fmt.Sprintf("INSERT INTO %s (title, body, author_id) values ($1, $2, $3) RETURNING id", "exercises")
 
 	row := r.db.QueryRow(query, exercise.Title, exercise.Body, userId)
+	if err := row.Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (r *Repository) UpdateExercise(exercise *entity.Exercise, userId int) (int, error) {
+	var id int
+
+	fmt.Println(exercise)
+
+	query := fmt.Sprintf("UPDATE %s SET title = $1, body = $2 WHERE id = %d RETURNING id", "exercises", exercise.Id)
+
+	row := r.db.QueryRow(query, exercise.Title, exercise.Body)
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}

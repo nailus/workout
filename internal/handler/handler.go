@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nailus/workout/internal/service"
@@ -40,7 +41,8 @@ func (h *Handler) InitRouters() *gin.Engine {
 		exercises.POST("/", h.createExercise)
 		exercises.GET("/", h.getAllExercises)
 		exercises.GET("/:id", h.getExerciseById)
-		exercises.PUT("/:id", h.updateExercise)
+		exercises.PATCH("/:id", h.updateExercise)
+		//exercises.PUT("/:id", h.updateExercise)
 		exercises.DELETE("/:id", h.deleteExercise)
 	}
 	return router
@@ -70,11 +72,35 @@ func (h *Handler) getAllExercises(c *gin.Context) {
 }
 
 func (h *Handler) getExerciseById(c *gin.Context) {
-	fmt.Println("getExerciseById handler")
+	exerciseId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	exercise, err := h.service.GetExerciseById(exerciseId)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, exercise)
 }
 
 func (h *Handler) updateExercise(c *gin.Context) {
-	fmt.Println("updateExercise handler")
+	userIdContext, _ := c.Get("userId")
+	userId := userIdContext.(int)
+	
+	var exercise entity.Exercise
+	if err := c.BindJSON(&exercise); err != nil {
+		ResponseError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err := h.service.UpdateExercise(&exercise, userId)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "exercise updated"}) 
 }
 
 func (h *Handler) deleteExercise(c *gin.Context) {

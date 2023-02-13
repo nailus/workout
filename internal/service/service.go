@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	//"fmt"
-	//"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -38,6 +37,14 @@ func (s *Service) GetAllExercises() ([]entity.Exercise, error) {
 		return nil, err
 	}
 	return exerciseList, nil
+}
+
+func (s *Service) GetExerciseById(exerciseId int) (*entity.Exercise, error) {
+	exercise, err := s.repository.GetExercise(exerciseId)
+	if err != nil {
+		return nil, err
+	}
+	return exercise, nil
 }
 
 func (s *Service) CreateUser(user *entity.User) (int, error) {
@@ -91,4 +98,8 @@ func (s *Service) ParseAuthToken(accessToken string) (int, error) {
 
 func (s *Service) CreateExercise(exercise *entity.Exercise, userId int) (int, error) {
 	return s.repository.CreateExercise(exercise, userId)
+}
+
+func (s *Service) UpdateExercise(exercise *entity.Exercise, userId int) (int, error) {
+	return s.repository.UpdateExercise(exercise, userId)
 }
