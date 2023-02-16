@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,7 +41,6 @@ func (h *Handler) InitRouters() *gin.Engine {
 		exercises.GET("/", h.getAllExercises)
 		exercises.GET("/:id", h.getExerciseById)
 		exercises.PATCH("/:id", h.updateExercise)
-		//exercises.PUT("/:id", h.updateExercise)
 		exercises.DELETE("/:id", h.deleteExercise)
 	}
 	return router
@@ -104,7 +102,16 @@ func (h *Handler) updateExercise(c *gin.Context) {
 }
 
 func (h *Handler) deleteExercise(c *gin.Context) {
-	fmt.Println("deleteExercise handler")
+	userIdContext, _ := c.Get("userId")
+	userId := userIdContext.(int)
+	exerciseId, _ := strconv.Atoi(c.Param("id"))
+
+	err := h.service.DestroyExercise(exerciseId, userId)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "exercise deleted"}) 
 }
 
 func (h *Handler) signUp(c *gin.Context) {

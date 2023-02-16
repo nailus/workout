@@ -101,5 +101,21 @@ func (s *Service) CreateExercise(exercise *entity.Exercise, userId int) (int, er
 }
 
 func (s *Service) UpdateExercise(exercise *entity.Exercise, userId int) (int, error) {
-	return s.repository.UpdateExercise(exercise, userId)
+	if exercise.AuthorId != userId {
+		return 0, errors.New("the exercise do not available for updating")
+	}
+
+	return s.repository.UpdateExercise(exercise)
+}
+
+func (s *Service) DestroyExercise(exerciseId int, userId int) (error) {
+	exercise, err := s.GetExerciseById(exerciseId)
+	if err != nil {
+		return err
+	}
+	if exercise.AuthorId != userId {
+		return errors.New("the exercise do not available for delete")
+	}
+
+	return s.repository.DestroyExercise(exerciseId)
 }
