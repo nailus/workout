@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"net/http"
-	//"fmt"
 )
 
 type Server struct {
