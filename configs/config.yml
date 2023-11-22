@@ -1,0 +1,7 @@
+db:
+    username: "postgres"
+    host: "db"
+    port: "5432"
+    dbname: "workout_dev"
+    sslmode: "disable"
+port: "1000"
